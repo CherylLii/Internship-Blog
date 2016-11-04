@@ -1,0 +1,91 @@
+一、 安装VirtualBox
+下载完软件之后，跟一般的软件安装步骤差不多。基本上选择默认设置就可以了。
+
+二、 用VirtualBox虚拟机安装Ubuntu系统
+1. 打开软件之后，选择新建
+
+2. 设置新的虚拟机的名称、系统类型（Linux）、具体的版本
+   【问题】在选择版本的时候出现的只有32位的选项，但是我的镜像是64位的啊！！！
+   【解决办法】
+   VirtualBox安装64位的系统需要满足以下条件： 1. 64位的cpu  2. cpu允许硬件虚拟化
+   先来看第一个条件，看下计算机的属性中有系统属性值。
+   然后是第二条，是否开启CPU硬件虚拟化。各大厂商的情况不大相同，有的电脑默认开启了，有的没有，所以需要自行开启。开启方法：开机时按某个键进入BIOS设置界面
+   将cpu virtualization这一项由Disable设置为Enable。保存，然后重启电脑，硬件虚拟化就开启成功了。
+   
+3. 设置虚拟机的各种详细属性，现在是设置虚拟机的内存大小，设为默认就可以。
+
+4. 新建虚拟硬盘
+
+5. 虚拟硬盘类型 选择VDI
+
+6. 选择动态分配空间
+
+7. 选择虚拟机文件在硬盘上的创建的位置和空间
+
+8. 安装完毕。启动系统。
+  【问题】运行Virtualbox安装系统时出错（提示VBoxDD.DLL错误）
+  【解决办法】
+  无法启动虚拟机时，可能是盗版windows中"C:\Windows\System32\uxtheme.dll"被破解，导致VirtualBox的dll效验失败造成的（错误日志中有相关描述）。
+  将未破解的uxtheme.dll文件覆盖原文件即可。
+  
+三、 安装Nginx
+    apt-get install nginx
+
+　　1. 配置nginx
+    nginx所有的配置在 /etc/nginx/nginx.conf中
+    
+    nginx.conf配置里面包括了
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*; 这两个配置，所以这里面的配置也是有效的。
+       
+    错误日志 error_log /var/log/nginx/error.log;
+ 
+　　这里我们把配置写在 /etc/nginx/sites-available/default中
+  
+　　root /usr/share/nginx/html; 这是网页的根目录，默认里面有一个index.html页面
+    
+    1）把 index  index.html index.htm修改成index index.html index.htm index.php;
+    
+    2）增加         
+    location ~ \.php$ {
+      try_files $uri =404;
+      fastcgi_pass 127.0.0.1:9000;
+      fastcgi_index index.php;
+      include fastcgi_params;
+    }
+ 
+　　2. 保存文件，使配置生效 /etc/init.d/nginx reload
+ 
+　　3. 启动nginx
+　　　　/etc/init.d/nginx start
+ 
+　　4. 在 /usr/share/nginx/html下新建index.php
+　　　　<?php
+　　　　phpinfo();
+　　　　?>
+    
+四、安装php
+    apt-get install php5-fpm
+    
+    查看php5运行进程
+    ps -waux | grep php5
+
+    打开关闭php5进程
+    sudo service php5-fpm stop
+    sudo service php5-fpm start
+    sudo service php5-fpm restart
+    sudo service php5-fpm status
+
+五、配置php5-fpm监听端口  
+  /etc/php5/fpm/pool.d/www.conf
+  把
+  listen = /var/run/php5-fpm.sock  改为  listen = 127.0.0.1:9000
+  
+六、访问localhost:8080/index.php
+  输出php信息页面即为配置成功
+  
+
+  
+
+
+

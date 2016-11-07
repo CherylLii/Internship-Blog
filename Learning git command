@@ -1,0 +1,119 @@
+一、简介
+  是Linux社区创建的一个 用C语言编写的，能记录文件的改动， 分布式 的版本控制系统。
+
+二、亮点
+  集中式VS分布式
+  集中式版本控制系统，版本库是集中存放在中央服务器的，而干活的时候，用的都是自己的电脑，所以要先从中央服务器取得最新的版本，
+  然后开始干活，干完活了，再把自己的活推送给中央服务器。
+  缺点：必须联网才能工作。
+  
+  分布式版本控制系统Git是没有中心服务器的，每个人机器上都是一个完整的库。人们可以复制（fork 亦即克隆）某个项目到自己的列表中，成为自己的公共仓库。
+  随后将自己的更新提交到这个仓库，所有人都可以看到你的每次更新。
+  优点：安全性比较高
+       强大的分支管理
+       
+三、创建repository
+创建repository 有两种方式， 一种是本地初始化，一种是从远程克隆。
+通过 git init 命令把指定的目录变成Git可以管理的仓库，会生成一个隐藏的.git的目录，这个目录是Git来跟踪管理版本库的；
+通过 git clone <版本库的网址> <本地目录名> 从远程下载代码库。git clone支持多种协议，除了HTTP(s)以外，还支持SSH、Git、本地文件协议等。
+法一：不用github的账号，打开这个库在github上的主页，运行下面命令即可
+read only
+运行命令$Git clone https://github.com/jenkinsci/gerrit-trigger-plugin.git
+
+下面的三种方法都要先在github上注册账户，然后生成相应的ssh key，并把public key添加到个人账户里面，详见github帮助
+read+write
+$git clone git@github.com:flyingbird1221/gerrit-trigger-plugin.git   
+
+read+write
+$git clone https://flyingbird1221@github.com/flyingbird1221/gerrit-trigger-plugin.git   
+会提示输入密码，注意此处的密码不是你在github上账户的密码，而是当前登录系统用户的密码。
+
+read only
+$git clone git://github.com/flyingbird1221/gerrit-trigger-plugin.git
+
+四、添加及提交文件
+第一步，用命令git add <file>告诉Git，把文件修改添加到暂存区；
+第二步，用命令git commit告诉Git，把文件提交到仓库，实际上就是把暂存区的所有内容提交到当前分支。
+-m后面输入的是本次提交的说明，这样你就能从历史记录里方便地找到改动记录。
+
+五、删除文件
+用命令git rm删掉，并且git commit
+如果是删错了，因为版本库里还有呢，所以可以很轻松地把误删的文件恢复到最新版本：git checkout -- test.txt
+
+六、查看git状态
+工作区： 表示当前的工作目录 
+暂存区：存放到stage area
+版本库：存在master代码库中(git commit )
+
+使用 git status 命令查看工作区的状态
+
+七、查看文件差别
+如果git status告诉你有文件被修改过，用git diff可以查看修改内容。
+
+八、撤销操作
+HEAD指向的版本就是当前版本（指向master的一个指针叫HEAD），因此，Git允许我们在版本的历史之间穿梭，使用命令git reset --hard commit_id。
+reset命令既可以回退版本，也可以把暂存区的修改回退到工作区，用命令git reset HEAD file
+第一种：git reset test.py (从git repository 中取出来覆盖其staging area 中的文件)
+
+git checkout -- file可以丢弃工作区的修改
+第二种：已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态；
+git checkout test.py （从staging area 中来覆盖当前working directory 中文件）
+
+第三种：自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+git checkout HEAD test.py（从git repository 中来覆盖当前working directoy 中的文件）
+
+九、创建及删除分支
+在Git里，主分支，即master分支。HEAD严格来说不是指向提交，而是指向master，master才是指向提交的，所以，HEAD指向的就是当前分支。
+一开始的时候，master分支是一条线，Git用master指向最新的提交，再用HEAD指向master，就能确定当前分支。
+当我们创建新的分支，例如dev时，Git新建了一个指针叫dev，指向master相同的提交，再把HEAD指向dev，就表示当前分支在dev上。
+Git创建一个分支很快，因为除了增加一个dev指针，改改HEAD的指向。
+新提交一次后，dev指针往前移动一步，而master指针不变。
+Git怎么合并呢？最简单的方法，就是直接把master指向dev的当前提交，就完成了合并：
+查看分支：git branch
+创建分支：git branch <name>
+切换分支：git checkout <name>
+创建+切换分支：git checkout -b <name>
+合并某分支到当前分支：git merge <name>
+删除分支：git branch -d <name>
+
+十、查看git 提交的记录
+用git log可以查看提交历史，以便确定要回退到哪个版本。
+用git reflog查看命令历史，以便确定要回到未来的哪个版本。
+
+十一、多人协作
+1、首先，可以试图用git push origin branch-name推送自己的修改；
+2、如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+3、如果合并有冲突，则解决冲突，并在本地提交；
+4、没有冲突或者解决掉冲突后，再用git push origin branch-name推送就能成功！
+如果git pull提示“no tracking information”，则说明本地分支和远程分支的链接关系没有创建，
+用命令git branch --set-upstream branch-name origin/branch-name。
+
+查看远程库信息，使用git remote -v；
+从本地推送分支，使用git push origin branch-name，如果推送失败，先用git pull抓取远程的新提交；
+在本地创建和远程分支对应的分支，使用git checkout -b branch-name origin/branch-name，本地和远程分支的名称最好一致；
+建立本地分支和远程分支的关联，使用git branch --set-upstream branch-name origin/branch-name；
+从远程抓取分支，使用git pull，如果有冲突，要先处理冲突。
+
+十二、常用命令
+   add        Add file contents to the index
+   bisect     Find by binary search the change that introduced a bug
+   branch     List, create, or delete branches
+   checkout   Checkout a branch or paths to the working tree
+   clone      Clone a repository into a new directory
+   commit     Record changes to the repository
+   diff       Show changes between commits, commit and working tree, etc
+   fetch      Download objects and refs from another repository
+   grep       Print lines matching a pattern
+   init       Create an empty git repository or reinitialize an existing one
+   log        Show commit logs
+   merge      Join two or more development histories together
+   mv         Move or rename a file, a directory, or a symlink
+   pull       Fetch from and merge with another repository or a local branch
+   push       Update remote refs along with associated objects
+   rebase     Forward-port local commits to the updated upstream head
+   reset      Reset current HEAD to the specified state
+   rm         Remove files from the working tree and from the index
+   show       Show various types of objects
+   status     Show the working tree status
+   tag        Create, list, delete or verify a tag object signed with GPG
+ 
